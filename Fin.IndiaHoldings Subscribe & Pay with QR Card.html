@@ -2,15 +2,13 @@
 <html lang="en">
 
 <head>
-    <meta http-equiv="Content-Security-Policy" content="trusted-types default script;">
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="trusted-types default script;">
 
     <title>Fin.India Holdings MF Stock Price Ribbon and Consumer Chat24/7. Invest Now!!! Subscribe Now!!!</title>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://unpkg.com/quagga/dist/quagga.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 
     <style>
         #stockRibbonContainer,
@@ -103,67 +101,28 @@
         </form>
     </div>
 
-    <script type="module">
-        window.onload = function () {
-            function initiateQRScan() {
-                // Add logic to initiate QR code scan using quagga.js
-                quagga.init({
-                    inputStream: {
-                        name: "Live",
-                        type: "LiveStream",
-                        constraints: {
-                            width: 640,
-                            height: 480,
-                            facingMode: "environment"
-                        },
-                    },
-                    locator: {
-                        patchSize: "medium",
-                        halfSample: true,
-                    },
-                    numOfWorkers: navigator.hardwareConcurrency || 4,
-                    decoder: {
-                        readers: ["upc_reader", "code_128_reader"],
-                    },
-                    locate: true,
-                }, function (err) {
-                    if (err) {
-                        console.error(err);
-                        return;
-                    }
-                    quagga.start();
-                });
+    <script>
+        function initiateQRScan() {
+            const qrCodeScanner = new Html5Qrcode("scannedQRInfo");
+            qrCodeScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                qrCodeMessage => {
+                    document.getElementById("scannedQRInfo").innerHTML =
+                        `<p>Scanned QR Code Information: ${qrCodeMessage}</p>`;
+                    qrCodeScanner.stop();
+                },
+                errorMessage => {
+                    console.error(errorMessage);
+                }
+            );
+        }
 
-                quagga.onDetected(function (result) {
-                    // Handle the detected QR code information
-                    const scannedInfo = result.codeResult.code;
-                    displayScannedInfo(scannedInfo);
-                    quagga.stop();
-                });
-            }
-
-            function displayScannedInfo(info) {
-                // Display the scanned QR code information on the page
-                const scannedQRInfoContainer = document.getElementById('scannedQRInfo');
-                scannedQRInfoContainer.innerHTML = `<p>Scanned QR Code Information: ${info}</p>`;
-            }
-
-            function subscribe() {
-                // Add your subscription logic here for card payment
-                console.log('Subscribe function called');
-            }
-
-            // Make the functions globally accessible
-            window.initiateQRScan = initiateQRScan;
-            window.displayScannedInfo = displayScannedInfo;
-            window.subscribe = subscribe;
-        };
-
-        
+        function subscribe() {
+            // Add your subscription logic here for card payment
+            console.log('Subscribe function called');
+        }
     </script>
 </body>
 
 </html>
-
-
-
