@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Security-Policy" content="trusted-types default script;">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Fin.India Holdings MF Stock Price Ribbon and Consumer Chat24/7. Invest Now!!! Subscribe Now!!!</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://unpkg.com/quagga"></script>
+    <style>
+        #stockRibbonContainer,
+        #chatContainer {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #stockRibbon,
+        .chat-window {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .chat-window {
+            margin-top: 20px;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+
+        #subscriptionForm {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+
+        #subscriptionForm label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #subscriptionForm input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
+        }
+
+        #subscriptionForm button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        #scannedQRInfo {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #eee;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="stockRibbon" style="overflow: hidden; white-space: nowrap;"></div>
+
+    <div id="subscriptionForm">
+        <h2>Subscribe Now!</h2>
+        <form id="paymentForm">
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" name="fullName" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="cardNumber">Card Number:</label>
+            <input type="text" id="cardNumber" name="cardNumber" required>
+
+            <label for="expiryDate">Expiry Date:</label>
+            <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
+
+            <label for="cvc">CVC:</label>
+            <input type="text" id="cvc" name="cvc" required>
+
+            <button type="button" onclick="initiateQRScan()">Subscribe and Pay with QR</button>
+
+            <div id="scannedQRInfo"></div>
+
+            <button type="button" onclick="subscribe()">Subscribe and Pay with Card</button>
+        </form>
+    </div>
+
+    <script>
+        window.onload = function () {
+            function initiateQRScan() {
+                // Add logic to initiate QR code scan using quagga.js
+                quagga.init({
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        constraints: {
+                            width: 640,
+                            height: 480,
+                            facingMode: "environment"
+                        },
+                    },
+                    locator: {
+                        patchSize: "medium",
+                        halfSample: true,
+                    },
+                    numOfWorkers: navigator.hardwareConcurrency || 4,
+                    decoder: {
+                        readers: ["upc_reader", "code_128_reader"],
+                    },
+                    locate: true,
+                }, function (err) {
+                    if (err) {
+                        console.error(err);
+                        return;
+                    }
+                    quagga.start();
+                });
+
+                quagga.onDetected(function (result) {
+                    // Handle the detected QR code information
+                    const scannedInfo = result.codeResult.code;
+                    displayScannedInfo(scannedInfo);
+                    quagga.stop();
+                });
+            }
+
+            function displayScannedInfo(info) {
+                // Display the scanned QR code information on the page
+                const scannedQRInfoContainer = document.getElementById('scannedQRInfo');
+                scannedQRInfoContainer.innerHTML = `<p>Scanned QR Code Information: ${info}</p>`;
+            }
+
+            function subscribe() {
+                // Add your subscription logic here for card payment
+                console.log('Subscribe function called');
+            }
+
+            // Make the functions globally accessible
+            window.initiateQRScan = initiateQRScan;
+            window.displayScannedInfo = displayScannedInfo;
+            window.subscribe = subscribe;
+        };
+    </script>
+</body>
+
+</html>
