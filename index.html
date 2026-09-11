@@ -136,6 +136,88 @@
 
             rzp1.open();
         }
+
+        // Replace with your actual Render service URL
+const RENDER_BACKEND_URL = "https://your-app-name.onrender.com"; 
+
+async function subscribe(e) {
+    e.preventDefault();
+
+    const userName = document.getElementById('fullName').value;
+    const userEmail = document.getElementById('email').value;
+    const userContact = document.getElementById('contact').value;
+
+    if (!userName || !userEmail || !userContact) {
+        alert("Please fill in all details before proceeding.");
+        return;
+    }
+
+    try {
+        // Step 1: Call Render API to create order
+        const response = await fetch(`${RENDER_BACKEND_URL}/create-order`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: 50000, currency: 'INR' })
+        });
+
+        const orderData = await response.json();
+
+        if (!orderData.id) {
+            alert("Failed to initialize payment order.");
+            return;
+        }
+
+        // Step 2: Configure Razorpay Options with dynamic order_id
+        var options = {
+            "key": "YOUR_KEY_ID", // Your Razorpay Public Key ID
+            "amount": orderData.amount,
+            "currency": orderData.currency,
+            "name": "Fin. India Holdings",
+            "description": "Premium Subscription",
+            "order_id": orderData.id, // Dynamically set from Render backend
+            "handler": async function (response) {
+                // Step 3: Verify payment signature on Render backend
+                const verifyResponse = await fetch(`${RENDER_BACKEND_URL}/verify-payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_signature: response.razorpay_signature
+                    })
+                });
+
+                const result = await verifyResponse.json();
+
+                if (result.status === 'success') {
+                    alert("Payment Verified Successfully!");
+                } else {
+                    alert("Payment Verification Failed!");
+                }
+            },
+            "prefill": {
+                "name": userName,
+                "email": userEmail,
+                "contact": userContact
+            },
+            "theme": {
+                "color": "#4caf50"
+            }
+        };
+
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            alert("Payment Failed: " + response.error.description);
+        });
+        
+        rzp1.open();
+
+    } catch (error) {
+        console.error("Error launching checkout:", error);
+        alert("Unable to process payment request right now.");
+    }
+}
+
     </script>
 </body>
 </html>
