@@ -1,32 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Fin.India Holdings MF Stock Price Ribbon and Consumer Chat24/7. Invest Now!!! Subscribe Now!!!</title>
+    <title>Fin. India Holdings MF Stock Price Ribbon and Consumer Chat</title>
+    
+    <!-- Razorpay Standard Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 
     <style>
-        #stockRibbonContainer,
-        #chatContainer {
-            width: 100%;
-            overflow: hidden;
-        }
-
-        #stockRibbon,
-        .chat-window {
-            overflow: hidden;
-            white-space: nowrap;
-        }
-
-        .chat-window {
-            margin-top: 20px;
-        }
-
         body {
             font-family: 'Arial', sans-serif;
             background-color: #f0f0f0;
@@ -35,95 +19,123 @@
 
         #subscriptionForm {
             max-width: 400px;
-            margin: 20px auto;
+            margin: 40px auto;
             padding: 20px;
             background-color: #fff;
             border: 1px solid #ddd;
             border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         #subscriptionForm label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            font-weight: bold;
         }
 
         #subscriptionForm input {
             width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
+            padding: 10px;
+            margin-bottom: 20px;
             box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
         }
 
         #subscriptionForm button {
             background-color: #4caf50;
             color: #fff;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
 
-        #scannedQRInfo {
-            margin-top: 10px;
-            padding: 10px;
-            background-color: #eee;
+        #subscriptionForm button:hover {
+            background-color: #45a049;
         }
     </style>
 </head>
-
 <body>
-
-    <div id="stockRibbon" style="overflow: hidden; white-space: nowrap;"></div>
-    <form><script src="https://checkout.razorpay.com/v1/payment-button.js" data-payment_button_id="pl_Tac90RgMsmgxus" async> </script> </form>
 
     <div id="subscriptionForm">
         <h2>Subscribe Now!</h2>
+        <!-- Form relies on Razorpay modal for payment details to ensure PCI compliance -->
         <form id="paymentForm">
             <label for="fullName">Full Name:</label>
-            <input type="text" id="fullName" name="fullName" required>
+            <input type="text" id="fullName" name="fullName" placeholder="Enter your full name" required>
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <input type="email" id="email" name="email" placeholder="Enter your email address" required>
+            
+            <label for="contact">Phone Number:</label>
+            <input type="tel" id="contact" name="contact" placeholder="Enter your phone number" required>
 
-            <label for="cardNumber">Card Number:</label>
-            <input type="text" id="cardNumber" name="cardNumber" required>
-
-            <label for="expiryDate">Expiry Date:</label>
-            <input type="text" id="expiryDate" name="expiryDate" placeholder="MM/YY" required>
-
-            <label for="cvc">CVC:</label>
-            <input type="text" id="cvc" name="cvc" required>
-
-            <button type="button" onclick="initiateQRScan()">Subscribe and Pay with QR</button>
-
-            <div id="scannedQRInfo"></div>
-
-            <button type="button" onclick="subscribe()">Subscribe and Pay with Card</button>
+            <button type="button" id="rzp-button" onclick="subscribe(event)">Subscribe and Pay</button>
         </form>
     </div>
 
     <script>
-        function initiateQRScan() {
-            const qrCodeScanner = new Html5Qrcode("scannedQRInfo");
-            qrCodeScanner.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
-                qrCodeMessage => {
-                    document.getElementById("scannedQRInfo").innerHTML =
-                        `<p>Scanned QR Code Information: ${qrCodeMessage}</p>`;
-                    qrCodeScanner.stop();
-                },
-                errorMessage => {
-                    console.error(errorMessage);
-                }
-            );
-        }
+        function subscribe(e) {
+            e.preventDefault();
 
-        function subscribe() {
-            // Add your subscription logic here for card payment
-            console.log('Subscribe function called');
+            // 1. Capture user details from the form
+            const userName = document.getElementById('fullName').value;
+            const userEmail = document.getElementById('email').value;
+            const userContact = document.getElementById('contact').value;
+
+            // Basic validation
+            if(!userName || !userEmail || !userContact) {
+                alert("Please fill in all details before proceeding.");
+                return;
+            }
+
+            // 2. Configure Razorpay Options dynamically
+            var options = {
+                "key": "YOUR_KEY_ID", // Replace with your actual Live or Test Key ID
+                "amount": "50000", // Amount is in subunits (e.g., 50000 paise = INR 500)
+                "currency": "INR",
+                "name": "Fin. India Holdings", 
+                "description": "Premium Mutual Fund Subscription",
+                "image": "https://example.com/your_logo.png", // Add your company logo URL
+                "order_id": "order_IluGWxBm9U8zJ8", // IMPORTANT: This must be dynamically generated via your backend for each transaction
+                "handler": function (response){
+                    // Success Callback
+                    alert("Payment Successful!");
+                    console.log("Payment ID: " + response.razorpay_payment_id);
+                    console.log("Order ID: " + response.razorpay_order_id);
+                    console.log("Signature: " + response.razorpay_signature);
+                    
+                    // TODO: Send these details to your server to verify the signature
+                },
+                "prefill": {
+                    "name": userName,
+                    "email": userEmail,
+                    "contact": userContact
+                },
+                "notes": {
+                    "subscription_type": "Premium Access"
+                },
+                "theme": {
+                    "color": "#4caf50" // Matches the button color
+                }
+            };
+
+            // 3. Initialize and open Razorpay
+            var rzp1 = new Razorpay(options);
+            
+            // Handle Payment Failure
+            rzp1.on('payment.failed', function (response){
+                console.error(response.error.description);
+                alert("Payment Failed: " + response.error.reason);
+            });
+
+            rzp1.open();
         }
     </script>
 </body>
-
 </html>
