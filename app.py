@@ -64,7 +64,7 @@ else:
                 })
                 
                 # Razorpay will redirect to this Streamlit URL after payment via GET
-                CALLBACK_URL = "https://finwise-3.onrender.com"
+                CALLBACK_URL = "[https://anusin1805.github.io/MasterDashboard/](https://anusin1805.github.io/MasterDashboard/)"
                 
                 # Render the Razorpay Checkout Modal
                 checkout_html = f"""
