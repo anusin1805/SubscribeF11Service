@@ -65,7 +65,7 @@ else:
                 })
                 
                 # Razorpay will redirect to this Streamlit URL after payment via GET
-                CALLBACK_URL = "https://f11finwisesubspay-c7gkgbrzvkjewr2hlw5xi6.streamlit.app"
+                CALLBACK_URL = "https://finwise-3.onrender.com"
                 
                 # Render the Razorpay Checkout Modal
                 checkout_html = f"""
