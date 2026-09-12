@@ -1,64 +1,52 @@
-import os
-from flask import Flask, request, jsonify
-from flask_cors import CORS
+import streamlit as st
 import razorpay
 
-app = Flask(__name__)
+# Access live credentials securely from Streamlit Secrets
+RAZORPAY_KEY_ID = st.secrets["RAZORPAY_KEY_ID"]
+RAZORPAY_KEY_SECRET = st.secrets["RAZORPAY_KEY_SECRET"]
 
-# Enable CORS so your frontend HTML can communicate with this API
-CORS(app)
-
-# Fetch credentials securely from environment variables
-RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
-RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
-
-# Initialize Razorpay Client
+# Initialize the Razorpay client
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
-@app.route("/", methods=["GET"])
-def health_check():
-    return jsonify({"status": "Backend service running"}), 200
+st.set_page_config(page_title="Subscription Gateway", layout="centered")
 
-@app.route("/create-order", methods=["POST"])
-def create_order():
-    try:
-        data = request.get_json() or {}
-        amount = data.get("amount", 50000)  # Amount in subunits (e.g., 50000 paise = ₹500)
-        currency = data.get("currency", "INR")
+st.title("Fin. India Holdings Premium Subscription")
+st.write("Enter your details below to access the MF Stock Price Ribbon and 24/7 Consumer Chat.")
 
-        order_data = {
-            "amount": amount,
-            "currency": currency,
-            "receipt": f"receipt_{os.urandom(4).hex()}",
-            "payment_capture": 1
-        }
-        
-        # Create Razorpay Order
-        order = client.order.create(data=order_data)
-        return jsonify(order), 200
+# Create the user input form
+with st.form("subscription_form"):
+    name = st.text_input("Full Name")
+    email = st.text_input("Email Address")
+    phone = st.text_input("Phone Number")
+    submitted = st.form_submit_button("Proceed to Payment")
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+if submitted:
+    if not name or not email or not phone:
+        st.error("Please fill in all details before proceeding.")
+    else:
+        try:
+            # Generate a dynamic payment link securely on the server-side
+            payment_link = client.payment_link.create({
+                "amount": 50000,  # Amount in paise (₹500.00)
+                "currency": "INR",
+                "accept_partial": False,
+                "description": "Premium Mutual Fund Subscription",
+                "customer": {
+                    "name": name,
+                    "email": email,
+                    "contact": phone
+                },
+                "notify": {
+                    "sms": True,
+                    "email": True
+                },
+                "reminder_enable": True
+            })
+            
+            st.success("Secure payment portal generated successfully!")
+            
+            # Display a direct button that routes the user to Razorpay's secure checkout
+            st.link_button("👉 Click Here to Complete Payment", payment_link["short_url"], type="primary")
 
-@app.route("/verify-payment", methods=["POST"])
-def verify_payment():
-    try:
-        data = request.get_json()
-        
-        params_dict = {
-            'razorpay_order_id': data.get('razorpay_order_id'),
-            'razorpay_payment_id': data.get('razorpay_payment_id'),
-            'razorpay_signature': data.get('razorpay_signature')
-        }
-
-        # Verify signature using Razorpay SDK
-        client.utility.verify_payment_signature(params_dict)
-        return jsonify({"status": "success", "message": "Payment verified successfully"}), 200
-
-    except razorpay.errors.SignatureVerificationError:
-        return jsonify({"status": "failure", "message": "Invalid payment signature"}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+        except Exception as e:
+            st.error(f"Transaction initialization failed: {str(e)}")
