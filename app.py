@@ -1,12 +1,12 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import razorpay
+import os
 
-# 1. Initialize Razorpay securely using Streamlit Secrets
-# NEVER hardcode secrets in this file. Store them in Streamlit Dashboard > App Settings > Secrets
-RAZORPAY_KEY_ID = st.secrets["RAZORPAY_KEY_ID"]
-RAZORPAY_KEY_SECRET = st.secrets["RAZORPAY_KEY_SECRET"]
 
+# 1. Initialize Razorpay using standard Environment Variables
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET")
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 st.set_page_config(page_title="F11 Finwise Premium", layout="centered")
