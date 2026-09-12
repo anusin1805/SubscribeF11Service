@@ -104,7 +104,7 @@ else:
                 
                 # Display the checkout button natively in Streamlit
                 st.write("Order generated successfully! Click below to complete your transaction:")
-                components.html(checkout_html, height=100)
+                components.html(checkout_html, height=600)
                 
             except Exception as e:
                 st.error(f"Failed to initialize payment gateway: {e}")
